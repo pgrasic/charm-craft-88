@@ -101,7 +101,8 @@ export function ReminderCard({ reminder, variant = "priority" }: Props) {
           <Trash2 className="size-4" aria-hidden="true" />
           Obriši
         </button>
-        <button className="ml-auto text-navy-light/70 italic text-base hover:text-navy-light transition-colors">
+        <button className="ml-auto inline-flex items-center gap-2 px-4 h-11 rounded-xl border-2 border-destructive text-destructive font-bold text-base hover:bg-destructive hover:text-destructive-foreground transition-colors">
+          <Trash2 className="size-4" aria-hidden="true" />
           Nemoj me podsjećati danas
         </button>
       </div>

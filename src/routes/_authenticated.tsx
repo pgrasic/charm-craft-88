@@ -12,12 +12,15 @@ function AuthenticatedLayout() {
       <div className="min-h-dvh flex w-full bg-background">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-20 flex items-center px-4 md:hidden border-b-2 border-border bg-navy-dark text-white shadow-md">
+          <header className="h-20 flex items-center gap-4 px-5 md:hidden bg-navy-dark text-white shadow-lg">
             <SidebarTrigger
               aria-label="Otvori izbornik"
-              className="size-14 rounded-xl bg-white text-navy-dark hover:bg-white/90 border-2 border-white [&_svg]:!size-8 shrink-0"
+              className="group relative size-14 rounded-2xl bg-gradient-to-br from-white to-navy-bg text-navy-dark ring-2 ring-white/30 ring-offset-2 ring-offset-navy-dark shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 [&_svg]:!size-7 [&_svg]:transition-transform [&_svg]:group-hover:scale-110 shrink-0"
             />
-            <span className="ml-4 font-display font-extrabold text-xl">Izbornik</span>
+            <div className="flex flex-col leading-tight">
+              <span className="text-[11px] uppercase tracking-[0.18em] text-white/60 font-semibold">Dodirni za</span>
+              <span className="font-display font-extrabold text-lg">Izbornik</span>
+            </div>
             <span className="ml-auto font-display font-extrabold text-2xl tracking-tight">MedikApp</span>
           </header>
           <main className="flex-1 p-6 md:p-10 lg:p-12">

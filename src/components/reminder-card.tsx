@@ -1,4 +1,4 @@
-import { Pill, Check, Clock, Pencil, Trash2 } from "lucide-react";
+import { Pill, Check, Clock, Pencil, Trash2, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type Reminder = {

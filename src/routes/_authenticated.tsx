@@ -18,9 +18,7 @@ function AuthenticatedLayout() {
               className="size-14 rounded-xl bg-white text-navy-dark hover:bg-white/90 border-2 border-white [&_svg]:!size-8 shrink-0"
             />
             <span className="ml-4 font-display font-extrabold text-xl">Izbornik</span>
-            <span className="ml-auto font-display font-extrabold text-2xl tracking-tight">
-              MedikApp
-            </span>
+            <span className="ml-auto font-display font-extrabold text-2xl tracking-tight">MedikApp</span>
           </header>
           <main className="flex-1 p-6 md:p-10 lg:p-12">
             <Outlet />

@@ -1,4 +1,4 @@
-import { Pill, Check, Clock, Pencil, Trash2 } from "lucide-react";
+import { Pill, Check, Clock, Pencil, Trash2, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type Reminder = {
@@ -102,7 +102,7 @@ export function ReminderCard({ reminder, variant = "priority" }: Props) {
           Obriši
         </button>
         <button className="ml-auto inline-flex items-center gap-2 px-4 h-11 rounded-xl border-2 border-destructive text-destructive font-bold text-base hover:bg-destructive hover:text-destructive-foreground transition-colors">
-          <Trash2 className="size-4" aria-hidden="true" />
+          <BellOff className="size-4" aria-hidden="true" />
           Nemoj me podsjećati danas
         </button>
       </div>

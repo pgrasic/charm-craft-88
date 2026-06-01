@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ActionRouteImport } from './routes/action'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRemindersRouteImport } from './routes/_authenticated.reminders'
@@ -25,6 +26,11 @@ const RegisterRoute = RegisterRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ActionRoute = ActionRouteImport.update({
+  id: '/action',
+  path: '/action',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -55,6 +61,7 @@ const AuthenticatedAccountRoute = AuthenticatedAccountRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/action': typeof ActionRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/action': typeof ActionRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
@@ -73,6 +81,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/action': typeof ActionRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
@@ -83,17 +92,26 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/action'
     | '/login'
     | '/register'
     | '/account'
     | '/add-reminder'
     | '/reminders'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/register' | '/account' | '/add-reminder' | '/reminders'
+  to:
+    | '/'
+    | '/action'
+    | '/login'
+    | '/register'
+    | '/account'
+    | '/add-reminder'
+    | '/reminders'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/action'
     | '/login'
     | '/register'
     | '/_authenticated/account'
@@ -104,6 +122,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ActionRoute: typeof ActionRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
 }
@@ -122,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/action': {
+      id: '/action'
+      path: '/action'
+      fullPath: '/action'
+      preLoaderRoute: typeof ActionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -181,9 +207,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ActionRoute: ActionRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

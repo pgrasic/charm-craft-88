@@ -1,8 +1,14 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
+import { isAuthenticated } from "@/lib/api";
 
 export const Route = createFileRoute("/_authenticated")({
+  beforeLoad: () => {
+    if (typeof window !== "undefined" && !isAuthenticated()) {
+      throw redirect({ to: "/login" });
+    }
+  },
   component: AuthenticatedLayout,
 });
 
@@ -21,7 +27,7 @@ function AuthenticatedLayout() {
               <span className="text-[11px] uppercase tracking-[0.18em] text-white/60 font-semibold">Dodirni za</span>
               <span className="font-display font-extrabold text-lg">Izbornik</span>
             </div>
-            <span className="ml-auto font-display font-extrabold text-2xl tracking-tight">MedikApp</span>
+            <img src="/stef-logo.png" alt="Štef" className="ml-auto size-12 rounded-xl" />
           </header>
           <main className="flex-1 p-6 md:p-10 lg:p-12">
             <Outlet />

@@ -1,10 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ReminderCard, type Reminder } from "@/components/reminder-card";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { ReminderCard, type Reminder, type EditValues } from "@/components/reminder-card";
+import {
+  getUserReminders,
+  getAllMeds,
+  medicationTaken,
+  snoozeReminder,
+  dontRemindToday,
+  updateKorisnikLijek,
+  deleteKorisnikLijek,
+} from "@/lib/api";
 
 export const Route = createFileRoute("/_authenticated/reminders")({
   head: () => ({
     meta: [
-      { title: "Moji podsjetnici — MedikApp" },
+      { title: "Moji podsjetnici — Štef" },
       { name: "description", content: "Pregled vaših dnevnih lijekova i rasporeda uzimanja." },
     ],
   }),
@@ -17,35 +28,96 @@ const today = new Date().toLocaleDateString("hr-HR", {
   month: "long",
 });
 
-const reminders: Reminder[] = [
-  {
-    id: "1",
-    name: "Lisinopril",
-    dose: "1 tableta (10mg)",
-    interval: "Svakih 24h",
-    time: "14:00",
-    startDate: "17.09.2025.",
-  },
-  {
-    id: "2",
-    name: "Brufen Effect Rapid 684 mg",
-    dose: "1 filmom obložena tableta",
-    interval: "Svakih 8h",
-    time: "18:00",
-    startDate: "20.09.2025.",
-  },
-  {
-    id: "3",
-    name: "Vitamin D3",
-    dose: "2 kapi",
-    interval: "Jednom dnevno",
-    time: "08:00",
-    startDate: "01.09.2025.",
-    taken: true,
-  },
-];
-
 function RemindersPage() {
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  async function load() {
+    try {
+      const [items, meds] = await Promise.all([getUserReminders(), getAllMeds()]);
+      const medMap: Record<number, string> = {};
+      for (const m of meds || []) medMap[m.id] = m.naziv;
+
+      setReminders(
+        (items || []).map((item: any) => ({
+          id: item.lijek_id,
+          name: medMap[item.lijek_id] || `Lijek #${item.lijek_id}`,
+          startDate: item.pocetno_vrijeme,
+          intervalHours: item.razmak_sati,
+          quantity: item.kolicina,
+        }))
+      );
+    } catch (err: any) {
+      toast.error(err?.message || "Greška pri učitavanju podsjetnika.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { load(); }, []);
+
+  const handleConfirm = async (id: number) => {
+    try {
+      await medicationTaken(id);
+      toast.success("Označeno kao uzeto.");
+      await load();
+    } catch (err: any) {
+      toast.error(err?.message || "Greška.");
+    }
+  };
+
+  const handleSnooze = async (id: number) => {
+    try {
+      await snoozeReminder(id);
+      toast.success("Podsjetnik odgođen za 15 minuta.");
+      await load();
+    } catch (err: any) {
+      toast.error(err?.message || "Greška.");
+    }
+  };
+
+  const handleSkip = async (id: number) => {
+    try {
+      await dontRemindToday(id);
+      toast.success("Nećemo te podsjećati danas.");
+    } catch (err: any) {
+      toast.error(err?.message || "Greška.");
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Sigurno želiš obrisati ovaj podsjetnik?")) return;
+    try {
+      await deleteKorisnikLijek(id);
+      setReminders((prev) => prev.filter((r) => r.id !== id));
+      toast.success("Podsjetnik obrisan.");
+    } catch (err: any) {
+      toast.error(err?.message || "Greška pri brisanju.");
+    }
+  };
+
+  const handleSave = async (id: number, values: EditValues) => {
+    try {
+      await updateKorisnikLijek(id, values);
+      toast.success("Podsjetnik ažuriran.");
+      await load();
+    } catch (err: any) {
+      toast.error(err?.message || "Greška pri spremanju.");
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <div className="space-y-6">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="bg-card rounded-3xl p-8 h-40 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-5xl mx-auto">
       <header className="mb-10 flex flex-col md:flex-row justify-between md:items-end gap-4 animate-reveal">
@@ -57,26 +129,34 @@ function RemindersPage() {
             Moji podsjetnici
           </h1>
         </div>
-        <div className="bg-card px-6 py-4 rounded-2xl ring-1 ring-foreground/5 shadow-sm">
-          <span className="text-navy-light font-semibold">Sljedeća doza:</span>
-          <strong className="ml-3 text-2xl font-display tabular-nums">14:00</strong>
-        </div>
       </header>
 
-      <section className="space-y-6">
-        {reminders.map((r, i) => (
-          <div
-            key={r.id}
-            className="animate-reveal"
-            style={{ animationDelay: `${100 + i * 100}ms` }}
-          >
-            <ReminderCard
-              reminder={r}
-              variant={r.taken || i > 0 ? "secondary" : "priority"}
-            />
-          </div>
-        ))}
-      </section>
+      {reminders.length === 0 ? (
+        <div className="bg-card rounded-3xl p-12 text-center shadow-sm ring-1 ring-foreground/5">
+          <p className="text-navy-light text-lg font-semibold">Nemate spremljenih podsjetnika.</p>
+          <p className="text-navy-light mt-2">Dodajte lijek putem izbornika.</p>
+        </div>
+      ) : (
+        <section className="space-y-6">
+          {reminders.map((r, i) => (
+            <div
+              key={r.id}
+              className="animate-reveal"
+              style={{ animationDelay: `${100 + i * 100}ms` }}
+            >
+              <ReminderCard
+                reminder={r}
+                variant={i === 0 ? "priority" : "secondary"}
+                onConfirm={() => handleConfirm(r.id)}
+                onSnooze={() => handleSnooze(r.id)}
+                onSkip={() => handleSkip(r.id)}
+                onDelete={() => handleDelete(r.id)}
+                onSave={(values) => handleSave(r.id, values)}
+              />
+            </div>
+          ))}
+        </section>
+      )}
     </div>
   );
 }

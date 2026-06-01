@@ -1,15 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Pill } from "lucide-react";
+import { login } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Prijava — MedikApp" },
-      { name: "description", content: "Prijavite se u MedikApp." },
+      { title: "Prijava — Štef" },
+      { name: "description", content: "Prijavite se u Štef." },
     ],
   }),
   component: LoginPage,
@@ -19,17 +20,36 @@ const inputClass =
   "h-14 px-5 text-base rounded-xl bg-navy-bg border-2 border-transparent focus-visible:border-navy-mid focus-visible:bg-card focus-visible:ring-0";
 
 function LoginPage() {
+  const navigate = useNavigate();
   const [showPw, setShowPw] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password) {
+      toast.error("Unesite e-mail i lozinku.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await login(email, password);
+      navigate({ to: "/reminders" });
+    } catch (err: any) {
+      toast.error(err?.message || "Prijava nije uspjela.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-dvh bg-background grid place-items-center px-4 py-12">
       <div className="w-full max-w-xl animate-reveal">
-        <div className="flex items-center gap-3 justify-center mb-8">
-          <div className="size-12 rounded-xl bg-navy-mid grid place-items-center text-white">
-            <Pill className="size-6" aria-hidden="true" />
-          </div>
+        <div className="flex flex-col items-center gap-2 mb-8">
+          <img src="/stef-logo.png" alt="" aria-hidden="true" className="size-24 rounded-2xl" />
           <span className="font-display text-3xl font-extrabold text-navy-dark">
-            MedikApp
+            Štef
           </span>
         </div>
 
@@ -38,7 +58,7 @@ function LoginPage() {
             Prijava
           </h1>
 
-          <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-base font-bold">E-mail</Label>
               <Input
@@ -46,6 +66,9 @@ function LoginPage() {
                 type="email"
                 placeholder="ime.prezime@email.com"
                 className={inputClass}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
               />
             </div>
 
@@ -57,6 +80,9 @@ function LoginPage() {
                   type={showPw ? "text" : "password"}
                   placeholder="••••••••"
                   className={`${inputClass} pr-24`}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
                 <button
                   type="button"
@@ -70,10 +96,10 @@ function LoginPage() {
 
             <Button
               type="submit"
+              disabled={loading}
               className="w-full h-16 rounded-xl text-lg font-bold bg-navy-mid hover:bg-navy-dark text-white shadow-lg shadow-navy-mid/20"
-              asChild
             >
-              <Link to="/reminders">Prijava</Link>
+              {loading ? "Prijava..." : "Prijava"}
             </Button>
 
             <p className="text-center font-semibold text-navy-light pt-2">

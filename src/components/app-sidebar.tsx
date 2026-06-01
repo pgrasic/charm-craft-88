@@ -1,5 +1,5 @@
-import { Link, useRouterState } from "@tanstack/react-router";
-import { Bell, PlusCircle, User, LogOut, Pill } from "lucide-react";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
+import { Bell, PlusCircle, User, LogOut } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { logout } from "@/lib/api";
 
 const items = [
   { title: "Moji podsjetnici", url: "/reminders", icon: Bell },
@@ -22,20 +23,24 @@ const items = [
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const navigate = useNavigate();
   const currentPath = useRouterState({
     select: (router) => router.location.pathname,
   });
+
+  const handleLogout = () => {
+    logout();
+    navigate({ to: "/login" });
+  };
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
       <SidebarHeader className="bg-navy-dark text-white border-b border-white/10 p-6">
         <div className="flex items-center gap-3">
-          <div className="size-10 rounded-xl bg-navy-light/30 ring-1 ring-white/20 grid place-items-center shrink-0">
-            <Pill className="size-5" aria-hidden="true" />
-          </div>
+          <img src="/stef-logo.png" alt="" aria-hidden="true" className="size-12 rounded-xl shrink-0" />
           {!collapsed && (
             <span className="font-display text-2xl font-extrabold tracking-tight">
-              MedikApp
+              Štef
             </span>
           )}
         </div>
@@ -75,13 +80,11 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              asChild
-              className="h-14 rounded-xl border-2 border-white/20 hover:bg-white/10 text-white font-bold justify-center"
+              onClick={handleLogout}
+              className="h-14 rounded-xl border-2 border-white/20 hover:bg-white/10 text-white font-bold justify-center cursor-pointer"
             >
-              <Link to="/login" className="flex items-center gap-3">
-                <LogOut className="size-5" aria-hidden="true" />
-                {!collapsed && <span>Odjava</span>}
-              </Link>
+              <LogOut className="size-5" aria-hidden="true" />
+              {!collapsed && <span>Odjava</span>}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

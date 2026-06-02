@@ -12,4 +12,9 @@ export default defineConfig({
   tanstackStart: {
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      allowedHosts: ["charm-craft-88.onrender.com"],
+    },
+  },
 });

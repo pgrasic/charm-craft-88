@@ -15,6 +15,7 @@ import { Route as ActionRouteImport } from './routes/action'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRemindersRouteImport } from './routes/_authenticated.reminders'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated.admin'
 import { Route as AuthenticatedAddReminderRouteImport } from './routes/_authenticated.add-reminder'
 import { Route as AuthenticatedAccountRouteImport } from './routes/_authenticated.account'
 
@@ -47,6 +48,11 @@ const AuthenticatedRemindersRoute = AuthenticatedRemindersRouteImport.update({
   path: '/reminders',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAddReminderRoute =
   AuthenticatedAddReminderRouteImport.update({
     id: '/add-reminder',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/add-reminder': typeof AuthenticatedAddReminderRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/reminders': typeof AuthenticatedRemindersRoute
 }
 export interface FileRoutesByTo {
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/account': typeof AuthenticatedAccountRoute
   '/add-reminder': typeof AuthenticatedAddReminderRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/reminders': typeof AuthenticatedRemindersRoute
 }
 export interface FileRoutesById {
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/_authenticated/account': typeof AuthenticatedAccountRoute
   '/_authenticated/add-reminder': typeof AuthenticatedAddReminderRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/reminders': typeof AuthenticatedRemindersRoute
 }
 export interface FileRouteTypes {
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/account'
     | '/add-reminder'
+    | '/admin'
     | '/reminders'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/account'
     | '/add-reminder'
+    | '/admin'
     | '/reminders'
   id:
     | '__root__'
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/_authenticated/account'
     | '/_authenticated/add-reminder'
+    | '/_authenticated/admin'
     | '/_authenticated/reminders'
   fileRoutesById: FileRoutesById
 }
@@ -171,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRemindersRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/add-reminder': {
       id: '/_authenticated/add-reminder'
       path: '/add-reminder'
@@ -191,12 +210,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedAccountRoute: typeof AuthenticatedAccountRoute
   AuthenticatedAddReminderRoute: typeof AuthenticatedAddReminderRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedRemindersRoute: typeof AuthenticatedRemindersRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAccountRoute: AuthenticatedAccountRoute,
   AuthenticatedAddReminderRoute: AuthenticatedAddReminderRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedRemindersRoute: AuthenticatedRemindersRoute,
 }
 

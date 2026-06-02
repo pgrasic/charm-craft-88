@@ -208,6 +208,25 @@ export async function getStats() {
   return res.json();
 }
 
+export type AdherenceDay = {
+  date: string;
+  rate: number | null;
+  confirmed: number;
+  total: number;
+};
+
+export async function getAdherence(): Promise<AdherenceDay[]> {
+  const res = await fetch(`${API_BASE}/stats/adherence`, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Adherence fetch failed");
+  return res.json();
+}
+
+export async function getMissedHeatmap(): Promise<Record<string, number>> {
+  const res = await fetch(`${API_BASE}/stats/heatmap`, { headers: getAuthHeaders() });
+  if (!res.ok) throw new Error("Heatmap fetch failed");
+  return res.json();
+}
+
 export async function getMedicationRequests() {
   const res = await fetch(`${API_BASE}/lijekovi/requests`, { headers: getAuthHeaders() });
   const { data, text } = await parseResponse(res);

@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, PlusCircle, User, LogOut } from "lucide-react";
+import { Bell, PlusCircle, User, LogOut, LayoutDashboard } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,9 +12,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { logout } from "@/lib/api";
+import { logout, getCurrentUser } from "@/lib/api";
 
-const items = [
+const baseItems = [
   { title: "Moji podsjetnici", url: "/reminders", icon: Bell },
   { title: "Unos lijeka", url: "/add-reminder", icon: PlusCircle },
   { title: "Korisnički račun", url: "/account", icon: User },
@@ -27,6 +27,11 @@ export function AppSidebar() {
   const currentPath = useRouterState({
     select: (router) => router.location.pathname,
   });
+
+  const currentUser = getCurrentUser();
+  const items = currentUser?.is_admin
+    ? [...baseItems, { title: "Admin", url: "/admin", icon: LayoutDashboard }]
+    : baseItems;
 
   const handleLogout = () => {
     logout();
